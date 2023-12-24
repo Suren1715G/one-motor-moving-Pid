@@ -1,0 +1,39 @@
+#include <vex.h>
+
+using namespace vex;
+
+// Motor constants
+motor myMotor(PORT1);
+
+// Constants for PID control (proportional control for time)
+double kP = 0.1; // Proportional constant
+
+// Target time in seconds
+double targetTime = 5.0;
+
+int main() {
+    // Reset motor encoder
+     myMotor.setReversed(true);
+
+    // Variables for time control
+    double startTime = Brain.Timer.value();
+    Brain myBrain;
+    while (Brain.Timer.value() - startTime < targetTime) {
+        // Calculate the error (time-based control)
+        double error = targetTime - (Brain.Timer.value() - startTime);
+
+        // Calculate the motor power using proportional control
+        double motorPower = kP * error;
+
+        // Apply the motor power to move forward
+        myMotor.spin(forward, motorPower, percent);
+
+        // Add a short delay to control the loop frequency
+        wait(10, msec);
+    }
+
+    // Stop the motor when the target time is reached
+    myMotor.stop();
+
+    return 0;
+}
